@@ -1,18 +1,29 @@
 import { User } from '../entities/User';
 import { MyContext } from '../types';
-import { Arg, Ctx, Mutation, Resolver } from 'type-graphql';
+import { Arg, Ctx, Field, InputType, Mutation, Resolver } from 'type-graphql';
+import argon2 from 'argon2';
+
+@InputType()
+class UsernamePasswordInput {
+  @Field()
+  username: string;
+
+  @Field()
+  password: string;
+}
 
 @Resolver()
 export class UserResolver {
-  @Mutation(() => User)
+  @Mutation(() => String)
   async register(
-    @Arg('username') username: string,
-    @Arg('password') password: string,
+    @Arg('options') options: UsernamePasswordInput,
     @Ctx() { em }: MyContext
-  ): Promise<User> {
-    const user = em.create(User, { username, password });
+  ) {
+    const hashedPassword = await argon2.hash(options.password);
+    const user = em.create(User, {
+      username: options.username,
+      password: hashedPassword,
+    });
     await em.persistAndFlush(user);
-
-    return user;
   }
 }
