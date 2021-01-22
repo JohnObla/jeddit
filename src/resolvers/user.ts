@@ -70,7 +70,23 @@ export class UserResolver {
       password: hashedPassword,
     });
 
-    await em.persistAndFlush(user);
+    try {
+      await em.persistAndFlush(user);
+    } catch (error) {
+      if (error.code === '23505') {
+        // duplicate username error
+        return {
+          errors: [
+            {
+              field: 'username',
+              message: 'Username already exists',
+            },
+          ],
+        };
+      }
+
+      console.log('message: ', error);
+    }
     return { user };
   }
 
