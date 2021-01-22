@@ -2,6 +2,7 @@ import { __prod__ } from './constants';
 import { Post } from './entities/Post';
 import { MikroORM } from '@mikro-orm/core';
 import path from 'path';
+import { User } from './entities/User';
 require('dotenv').config();
 
 export default {
@@ -10,7 +11,7 @@ export default {
     pattern: /^[\w-]+\d+\.[tj]s$/, // regex pattern for the migration files
   },
   type: 'postgresql',
-  entities: [Post],
+  entities: [Post, User],
   dbName: 'jeddit',
   user: process.env.DB_USER,
   password: process.env.DB_PASSWORD,
